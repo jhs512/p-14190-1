@@ -42,15 +42,11 @@ dependencies {
     implementation("io.github.openfeign.querydsl:querydsl-jpa:7.4.0")
     kapt("io.github.openfeign.querydsl:querydsl-apt:7.4.0:jpa")
 
-    // H2 Console
-    implementation("org.springframework.boot:spring-boot-h2console")
-
     // OpenAPI / Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 
     // Database
-    runtimeOnly("com.h2database:h2")
-    runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("org.postgresql:postgresql")
 
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
