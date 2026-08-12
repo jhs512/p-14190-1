@@ -1,6 +1,8 @@
 server:
   forward-headers-strategy: native
   port: 8080
+  # 롤링 업데이트 시 SIGTERM을 받아도 처리 중인 요청을 끝낸 뒤 종료 (진짜 무중단의 필수 조건)
+  shutdown: graceful
 spring:
   config:
     import: optional:file:.env[.properties]

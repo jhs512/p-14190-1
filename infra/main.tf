@@ -628,6 +628,15 @@ spec:
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 20
+        # 파드 종료 시작과 endpoint 제거는 동시에 일어난다.
+        # preStop으로 잠깐 버텨 주면 그 사이 endpoint에서 빠지므로
+        # 게이트웨이가 죽는 파드로 새 요청을 보내지 않는다 (502 방지)
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 10"]
+      # preStop(10s) + graceful shutdown 여유
+      terminationGracePeriodSeconds: 45
 
 ---
 
