@@ -1,15 +1,18 @@
 spring:
-  autoconfigure:
-    exclude:
   data:
     redis:
-      host: redis_1
-      password: ${SPRING__DATA__REDIS__PASSWORD}
+      password: "${SPRING__DATA__REDIS__PASSWORD}"
   datasource:
-    url: jdbc:mysql://mysql_1:3306/${SPRING__DATASOURCE__URL___DB_NAME}
-    username: lldjlocal
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: "${SPRING__DATASOURCE__PASSWORD}"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
+    show-sql: false
 logging:
   level:
     com.back: INFO
@@ -21,4 +24,8 @@ custom:
     cookieDomain: "${custom.prod.cookieDomain}"
     frontUrl: "${custom.prod.frontUrl}"
     backUrl: "${custom.prod.backUrl}"
+    dbHost: "${custom.prod.dbHost}"
+    dbName: "${custom.prod.dbName}"
+    redisHost: "${custom.prod.redisHost}"
+    redisDatabase: "${custom.prod.redisDatabase}"
     name: p-14190-1
