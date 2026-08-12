@@ -4,3 +4,6 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.tfstate.lock.info
 secrets.tf
+*.auto.tfvars
+terraform.tfstate*
+tfplan
