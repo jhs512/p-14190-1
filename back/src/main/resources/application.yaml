@@ -88,14 +88,14 @@ custom:
     frontUrl: "http://${custom.dev.cookieDomain}:3000"
     backUrl: "http://${custom.dev.cookieDomain}:${server.port}"
   prod:
-    cookieDomain: p-14044-6.oa.gg
+    cookieDomain: vpc1-k8s.oa.gg
     frontUrl: "https://www.${custom.prod.cookieDomain}"
     backUrl: "https://api.${custom.prod.cookieDomain}"
   site:
     cookieDomain: "${custom.dev.cookieDomain}"
     frontUrl: "${custom.dev.frontUrl}"
     backUrl: "${custom.dev.backUrl}"
-    name: p-14044-6
+    name: p-14190-1
   jwt:
     secretKey: ${CUSTOM__JWT__SECRET_KEY}
   accessToken:
