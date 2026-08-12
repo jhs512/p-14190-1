@@ -1,6 +1,17 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:db_test;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: com.back.global.jpa.config.CustomTestPostgreSQLDialect
+custom:
+  site:
+    cookieDomain: "${custom.test.cookieDomain}"
+    frontUrl: "${custom.test.frontUrl}"
+    backUrl: "${custom.test.backUrl}"
+    dbHost: "${custom.test.dbHost}"
+    dbName: "${custom.test.dbName}"
+    redisHost: "${custom.test.redisHost}"
+    redisDatabase: "${custom.test.redisDatabase}"
+    name: p-14190-1
