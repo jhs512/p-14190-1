@@ -2,6 +2,7 @@ package com.back.domain.post.post.repository
 
 import com.back.domain.post.post.entity.Post
 import com.back.domain.post.post.entity.QPost
+import com.back.global.jpa.config.SpatialFunctions
 import com.back.standard.dto.PostSearchKeywordType1
 import com.back.standard.util.QueryDslUtil
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -52,6 +53,31 @@ class PostRepositoryImpl(
             .select(post.count())
             .from(post)
             .where(builder)
+
+        return PageableExecutionUtils.getPage(results, pageable) {
+            totalQuery.fetchFirst() ?: 0L
+        }
+    }
+
+    override fun findQPagedNearby(lng: Double, lat: Double, radiusM: Double, pageable: Pageable): Page<Post> {
+        val post = QPost.post
+
+        // ST_DWithin 으로 후보를 좁히고(인덱스가 일하는 구간), 그 안에서만 정확한 거리로 정렬한다
+        val within = SpatialFunctions.dWithin(post.location, lng, lat, radiusM)
+        val distance = SpatialFunctions.distanceM(post.location, lng, lat)
+
+        val results = queryFactory
+            .selectFrom(post)
+            .where(post.location.isNotNull.and(within))
+            .orderBy(distance.asc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        val totalQuery = queryFactory
+            .select(post.count())
+            .from(post)
+            .where(post.location.isNotNull.and(within))
 
         return PageableExecutionUtils.getPage(results, pageable) {
             totalQuery.fetchFirst() ?: 0L
