@@ -3,7 +3,9 @@ package com.back.domain.post.post.repository
 import com.back.domain.post.post.entity.Post
 import com.back.domain.post.post.entity.QPost
 import com.back.global.jpa.config.SpatialFunctions
+import com.back.global.jpa.config.VectorExpressions
 import com.back.global.pGroonga.config.PGroongaExpressions
+import org.springframework.ai.embedding.EmbeddingModel
 import com.back.standard.dto.PostSearchKeywordType1
 import com.back.standard.util.QueryDslUtil
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -12,8 +14,34 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 
 class PostRepositoryImpl(
-    private val queryFactory: JPAQueryFactory
+    private val queryFactory: JPAQueryFactory,
+    private val embeddingModel: EmbeddingModel,
 ) : PostRepositoryCustom {
+
+    override fun findQPagedBySimilarity(kw: String, pageable: Pageable): Page<Post> {
+        val post = QPost.post
+
+        // 검색어도 글과 같은 방식으로 벡터로 만든다. 같은 공간에 놓여야 거리를 잴 수 있다
+        val target = embeddingModel.embed(kw)
+        val distance = VectorExpressions.cosineDistance(post.embedding, target)
+
+        val results = queryFactory
+            .selectFrom(post)
+            .where(post.embedding.isNotNull)
+            .orderBy(distance.asc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        val totalQuery = queryFactory
+            .select(post.count())
+            .from(post)
+            .where(post.embedding.isNotNull)
+
+        return PageableExecutionUtils.getPage(results, pageable) {
+            totalQuery.fetchFirst() ?: 0L
+        }
+    }
     override fun findQPagedByKw(kwType: PostSearchKeywordType1, kw: String, pageable: Pageable): Page<Post> {
         val post = QPost.post
 
