@@ -88,6 +88,41 @@ class PostRepositoryImpl(
         }
     }
 
+    override fun findQPagedHybrid(
+        kw: String,
+        lng: Double,
+        lat: Double,
+        radiusM: Double,
+        pageable: Pageable
+    ): Page<Post> {
+        val post = QPost.post
+
+        // 공간 인덱스로 후보를 좁히고(반경), 그 안에서 의미 거리로 줄 세운다.
+        // 좁혀진 뒤에 벡터 거리를 재므로 전체를 훑지 않는다
+        val within = SpatialFunctions.dWithin(post.location, lng, lat, radiusM)
+        val distance = VectorExpressions.cosineDistance(post.embedding, embeddingModel.embed(kw))
+        val where = post.location.isNotNull
+            .and(post.embedding.isNotNull)
+            .and(within)
+
+        val results = queryFactory
+            .selectFrom(post)
+            .where(where)
+            .orderBy(distance.asc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        val totalQuery = queryFactory
+            .select(post.count())
+            .from(post)
+            .where(where)
+
+        return PageableExecutionUtils.getPage(results, pageable) {
+            totalQuery.fetchFirst() ?: 0L
+        }
+    }
+
     override fun findQPagedBySearchKw(kw: String, pageable: Pageable): Page<Post> {
         val post = QPost.post
 

@@ -16,4 +16,7 @@ interface PostRepositoryCustom {
 
     /** 벡터(의미) 유사도 검색 — 뜻이 비슷한 글을 가까운 순으로 */
     fun findQPagedBySimilarity(kw: String, pageable: Pageable): Page<Post>
+
+    /** 하이브리드 — 반경 안(공간)에서 뜻이 가까운 순(벡터)으로 */
+    fun findQPagedHybrid(kw: String, lng: Double, lat: Double, radiusM: Double, pageable: Pageable): Page<Post>
 }
