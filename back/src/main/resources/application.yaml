@@ -19,6 +19,15 @@ spring:
       port: 6379
       password: lldj123414
       database: ${custom.site.redisDatabase}
+  ai:
+    embedding:
+      transformer:
+        # 허깅페이스 모델 URL만 바꾸면 임베딩 모델이 교체된다 (API 키 불필요, 로컬 계산)
+        # intfloat/multilingual-e5-small : 다국어(한국어 포함) 384차원
+        onnx:
+          modelUri: https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model.onnx
+        tokenizer:
+          uri: https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/tokenizer.json
   sql:
     init:
       # schema.sql 로 확장(postgis, pgroonga, vector)을 Hibernate DDL 전에 켠다

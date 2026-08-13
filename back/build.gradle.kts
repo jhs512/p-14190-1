@@ -51,6 +51,13 @@ dependencies {
     // PostGIS (공간 데이터) - JTS 타입을 JPA에 매핑
     implementation("org.hibernate.orm:hibernate-spatial")
 
+    // pgvector - FloatArray 를 vector 타입으로 매핑 (없으면 bytea 로 나가서 실패한다)
+    implementation("org.hibernate.orm:hibernate-vector")
+
+    // 임베딩 (Spring AI Transformers)
+    // 허깅페이스 ONNX 모델을 내려받아 로컬에서 계산한다 — API 키도, 외부 호출도 없다
+    implementation("org.springframework.ai:spring-ai-starter-model-transformers:1.0.0")
+
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -87,4 +94,6 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // 임베딩(ONNX) 모델을 메모리에 올리므로 테스트 JVM 힙을 넉넉히 준다
+    maxHeapSize = "2g"
 }

@@ -13,6 +13,9 @@ import jakarta.persistence.FetchType.LAZY
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
+import org.hibernate.annotations.Array
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
@@ -39,6 +42,13 @@ class Post(
     fun setLocation(lng: Double?, lat: Double?) {
         location = if (lng == null || lat == null) null else newPoint(lng, lat)
     }
+
+    // 글 내용의 의미를 담은 벡터. 차원 수는 임베딩 모델이 정한다 (multilingual-e5-small = 384)
+    @Column(columnDefinition = "vector(384)")
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 384)
+    var embedding: FloatArray? = null
+
     @OneToOne(fetch = LAZY, cascade = [PERSIST, REMOVE])
     var body: PostBody = PostBody(content)
 
