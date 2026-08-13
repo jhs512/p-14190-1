@@ -472,4 +472,87 @@ class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.content[%d].title".format(i)).value(post.title))
         }
     }
+
+    @Test
+    @DisplayName("글 작성, 좌표를 함께 저장하면 조회 시 그대로 나온다")
+    @WithUserDetails("user1")
+    fun t16() {
+        // 강남역
+        val lng = 127.0276
+        val lat = 37.4979
+
+        mvc
+            .perform(
+                post("/api/v1/posts")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                            {
+                                "title": "강남역 맛집",
+                                "content": "매운 갈비찜이 일품",
+                                "lng": $lng,
+                                "lat": $lat
+                            }
+                            """
+                    )
+            )
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.lng").value(lng))
+            .andExpect(jsonPath("$.data.lat").value(lat))
+
+        val post = postService.findLatest().getOrThrow()
+
+        mvc
+            .perform(get("/api/v1/posts/${post.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.lng").value(lng))
+            .andExpect(jsonPath("$.lat").value(lat))
+    }
+
+    @Test
+    @DisplayName("글 작성, 좌표는 선택 — 없으면 null 이다")
+    @WithUserDetails("user1")
+    fun t17() {
+        mvc
+            .perform(
+                post("/api/v1/posts")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                            {
+                                "title": "좌표 없는 글",
+                                "content": "장소와 무관한 글"
+                            }
+                            """
+                    )
+            )
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.lng").doesNotExist())
+            .andExpect(jsonPath("$.data.lat").doesNotExist())
+    }
+
+    @Test
+    @DisplayName("글 작성, 위경도 범위를 벗어나면 400")
+    @WithUserDetails("user1")
+    fun t18() {
+        mvc
+            .perform(
+                post("/api/v1/posts")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                            {
+                                "title": "잘못된 좌표",
+                                "content": "위도는 90을 넘을 수 없다",
+                                "lng": 127.0,
+                                "lat": 91.0
+                            }
+                            """
+                    )
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest)
+    }
 }
