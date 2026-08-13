@@ -534,6 +534,49 @@ class ApiV1PostControllerTest {
     }
 
     @Test
+    @DisplayName("주변 검색, 반경 안의 글만 나온다")
+    @WithUserDetails("user1")
+    fun t19() {
+        // 강남역 기준 3km 안에 있는 글과, 8.8km 떨어진 글을 하나씩 만든다
+        val gangnamLng = 127.0276
+        val gangnamLat = 37.4979
+        val nearId = writePostAt("역삼동 글", 127.0364, 37.5004)   // 강남역에서 약 800m
+        val farId = writePostAt("서울시청 글", 126.9780, 37.5665)  // 강남역에서 약 8.8km
+
+        mvc
+            .perform(
+                get("/api/v1/posts/nearby")
+                    .param("lng", gangnamLng.toString())
+                    .param("lat", gangnamLat.toString())
+                    .param("radiusM", "3000")
+            )
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[?(@.id == $nearId)]").exists())
+            .andExpect(jsonPath("$.content[?(@.id == $farId)]").doesNotExist())
+    }
+
+    // 좌표를 가진 글을 API 로 만들고 id 를 돌려준다 (주변 검색 테스트용 픽스처)
+    private fun writePostAt(title: String, lng: Double, lat: Double): Int {
+        mvc.perform(
+            post("/api/v1/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                        {
+                            "title": "$title",
+                            "content": "$title 의 내용",
+                            "lng": $lng,
+                            "lat": $lat
+                        }
+                        """
+                )
+        ).andExpect(status().isCreated)
+
+        return postService.findLatest().getOrThrow().id
+    }
+
+    @Test
     @DisplayName("글 작성, 위경도 범위를 벗어나면 400")
     @WithUserDetails("user1")
     fun t18() {
