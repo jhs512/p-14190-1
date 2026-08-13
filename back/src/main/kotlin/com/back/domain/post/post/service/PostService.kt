@@ -96,4 +96,19 @@ class PostService(
                 sort.sortBy
             )
         )
+
+    fun findPagedNearby(
+        lng: Double,
+        lat: Double,
+        radiusM: Double,
+        page: Int,
+        pageSize: Int
+    ): Page<Post> =
+        // 정렬은 거리순으로 리포지토리가 고정한다 (Pageable 의 sort 는 쓰지 않음)
+        postRepository.findQPagedNearby(
+            lng,
+            lat,
+            radiusM,
+            PageRequest.of(page - 1, pageSize)
+        )
 }

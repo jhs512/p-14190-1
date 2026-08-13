@@ -69,6 +69,26 @@ class ApiV1PostController(
         )
     }
 
+    @GetMapping("/nearby")
+    @Transactional(readOnly = true)
+    @Operation(summary = "주변 검색", description = "주어진 좌표에서 radiusM 미터 안의 글을 가까운 순으로")
+    fun getNearbyItems(
+        @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") lng: Double,
+        @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") lat: Double,
+        @RequestParam(defaultValue = "3000") radiusM: Double,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "5") pageSize: Int,
+    ): PageDto<PostDto> {
+        val page: Int = if (page >= 1) page else 1
+        val pageSize: Int = if (pageSize in 1..30) pageSize else 5
+
+        return PageDto(
+            postService
+                .findPagedNearby(lng, lat, radiusM, page, pageSize)
+                .map { post -> PostDto(post) }
+        )
+    }
+
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     @Operation(summary = "단건 조회")
