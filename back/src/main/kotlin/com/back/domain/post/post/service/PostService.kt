@@ -10,6 +10,7 @@ import com.back.domain.post.postUser.dto.PostUserDto
 import com.back.domain.post.postUser.entity.PostUser
 import com.back.standard.dto.PostSearchKeywordType1
 import com.back.standard.dto.PostSearchSortType1
+import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -19,7 +20,12 @@ import org.springframework.stereotype.Service
 class PostService(
     private val postRepository: PostRepository,
     private val publisher: ApplicationEventPublisher,
+    private val embeddingModel: EmbeddingModel,
 ) {
+    // 제목과 본문을 한 문장으로 합쳐 임베딩한다. 검색 대상이 곧 이 문장이 된다
+    private fun embed(title: String, content: String): FloatArray =
+        embeddingModel.embed("$title\n$content")
+
     fun count(): Long {
         return postRepository.count()
     }
@@ -29,6 +35,7 @@ class PostService(
     fun write(author: PostUser, title: String, content: String, lng: Double?, lat: Double?): Post {
         val post = Post(author, title, content)
         post.setLocation(lng, lat)
+        post.embedding = embed(title, content)
 
         author.incrementPostsCount()
 
@@ -39,10 +46,11 @@ class PostService(
 
     fun modify(post: Post, title: String, content: String) {
         post.modify(title, content)
+        post.embedding = embed(title, content)
     }
 
     fun modify(post: Post, title: String, content: String, lng: Double?, lat: Double?) {
-        post.modify(title, content)
+        modify(post, title, content)
         post.setLocation(lng, lat)
     }
 
