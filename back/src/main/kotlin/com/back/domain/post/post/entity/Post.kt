@@ -4,6 +4,7 @@ import com.back.domain.post.postComment.entity.PostComment
 import com.back.domain.post.postUser.entity.PostUser
 import com.back.global.exception.ServiceException
 import com.back.global.jpa.entity.BaseTime
+import com.back.global.pGroonga.annotation.PGroongaIndex
 import jakarta.persistence.CascadeType.PERSIST
 import jakarta.persistence.CascadeType.REMOVE
 import jakarta.persistence.Column
@@ -18,6 +19,8 @@ import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
 
 @Entity
+// 제목 전문검색용 PGroonga 인덱스. 부팅 시 PGroongaIndexConfig 가 만들어준다
+@PGroongaIndex(columns = ["title"])
 class Post(
     @field:ManyToOne(fetch = LAZY) val author: PostUser,
     var title: String,

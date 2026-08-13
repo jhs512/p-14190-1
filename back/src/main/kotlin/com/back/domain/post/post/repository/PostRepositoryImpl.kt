@@ -3,6 +3,7 @@ package com.back.domain.post.post.repository
 import com.back.domain.post.post.entity.Post
 import com.back.domain.post.post.entity.QPost
 import com.back.global.jpa.config.SpatialFunctions
+import com.back.global.pGroonga.config.PGroongaExpressions
 import com.back.standard.dto.PostSearchKeywordType1
 import com.back.standard.util.QueryDslUtil
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -53,6 +54,30 @@ class PostRepositoryImpl(
             .select(post.count())
             .from(post)
             .where(builder)
+
+        return PageableExecutionUtils.getPage(results, pageable) {
+            totalQuery.fetchFirst() ?: 0L
+        }
+    }
+
+    override fun findQPagedBySearchKw(kw: String, pageable: Pageable): Page<Post> {
+        val post = QPost.post
+
+        // ARRAY[title::text] &@~ '키워드' 로 렌더링된다 (CustomPostgreSQLDialect 에 등록한 함수)
+        val match = PGroongaExpressions.match(kw, post.title)
+
+        val results = queryFactory
+            .selectFrom(post)
+            .where(match)
+            .orderBy(post.id.desc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        val totalQuery = queryFactory
+            .select(post.count())
+            .from(post)
+            .where(match)
 
         return PageableExecutionUtils.getPage(results, pageable) {
             totalQuery.fetchFirst() ?: 0L

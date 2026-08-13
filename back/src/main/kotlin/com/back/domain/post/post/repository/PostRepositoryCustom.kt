@@ -10,4 +10,7 @@ interface PostRepositoryCustom {
 
     /** 주어진 좌표에서 radiusM 미터 안에 있는 글을 가까운 순으로 */
     fun findQPagedNearby(lng: Double, lat: Double, radiusM: Double, pageable: Pageable): Page<Post>
+
+    /** PGroonga 전문검색 (LIKE 가 아니라 인덱스를 타는 한글 검색) */
+    fun findQPagedBySearchKw(kw: String, pageable: Pageable): Page<Post>
 }
