@@ -11,7 +11,9 @@ data class PostWithContentDto(
     val authorName: String,
     val authorProfileImgUrl: String,
     val title: String,
-    val content: String
+    val content: String,
+    val lng: Double?,
+    val lat: Double?
 ) {
     constructor(post: Post) : this(
         post.id,
@@ -21,6 +23,8 @@ data class PostWithContentDto(
         post.author.name,
         post.author.redirectToProfileImgUrlOrDefault,
         post.title,
-        post.content
+        post.content,
+        post.lng,
+        post.lat
     )
 }

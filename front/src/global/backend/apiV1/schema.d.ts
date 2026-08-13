@@ -229,10 +229,18 @@ export interface components {
         PostModifyReqBody: {
             title: string;
             content: string;
+            /** Format: double */
+            lng?: number | null;
+            /** Format: double */
+            lat?: number | null;
         };
         PostWriteReqBody: {
             title: string;
             content: string;
+            /** Format: double */
+            lng?: number | null;
+            /** Format: double */
+            lat?: number | null;
         };
         PostDto: {
             /** Format: int32 */
@@ -246,6 +254,10 @@ export interface components {
             authorName: string;
             authorProfileImgUrl: string;
             title: string;
+            /** Format: double */
+            lng: number | null;
+            /** Format: double */
+            lat: number | null;
         };
         RsDataPostDto: {
             resultCode: string;
@@ -342,6 +354,10 @@ export interface components {
             authorProfileImgUrl: string;
             title: string;
             content: string;
+            /** Format: double */
+            lng: number | null;
+            /** Format: double */
+            lat: number | null;
         };
         MemberWithUsernameDto: {
             /** Format: int32 */
