@@ -13,4 +13,7 @@ interface PostRepositoryCustom {
 
     /** PGroonga 전문검색 (LIKE 가 아니라 인덱스를 타는 한글 검색) */
     fun findQPagedBySearchKw(kw: String, pageable: Pageable): Page<Post>
+
+    /** 벡터(의미) 유사도 검색 — 뜻이 비슷한 글을 가까운 순으로 */
+    fun findQPagedBySimilarity(kw: String, pageable: Pageable): Page<Post>
 }

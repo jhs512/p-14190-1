@@ -26,6 +26,9 @@ class DbIndexConfig {
             // 주변 검색(ST_DWithin)이 타는 인덱스.
             // geography 컬럼은 GIST 로 잡아야 반경 조건에서 후보를 좁힐 수 있다
             "CREATE INDEX IF NOT EXISTS idx_post_location_gist ON post USING gist (location)",
+            // 벡터 유사도 검색(<=>)이 타는 인덱스.
+            // HNSW = 그래프를 타고 가까운 이웃을 찾는 방식. 정확도를 조금 내주고 속도를 얻는다
+            "CREATE INDEX IF NOT EXISTS idx_post_embedding_hnsw ON post USING hnsw (embedding vector_cosine_ops)",
         )
 
         dataSource.connection.use { conn ->
