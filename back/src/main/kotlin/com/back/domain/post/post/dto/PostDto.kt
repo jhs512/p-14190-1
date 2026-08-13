@@ -10,7 +10,9 @@ data class PostDto(
     val authorId: Int,
     val authorName: String,
     val authorProfileImgUrl: String,
-    val title: String
+    val title: String,
+    val lng: Double?,
+    val lat: Double?
 ) {
     constructor(post: Post) : this(
         post.id,
@@ -19,6 +21,8 @@ data class PostDto(
         post.author.id,
         post.author.name,
         post.author.redirectToProfileImgUrlOrDefault,
-        post.title
+        post.title,
+        post.lng,
+        post.lat
     )
 }

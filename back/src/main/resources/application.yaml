@@ -19,6 +19,10 @@ spring:
       port: 6379
       password: lldj123414
       database: ${custom.site.redisDatabase}
+  sql:
+    init:
+      # schema.sql 로 확장(postgis, pgroonga, vector)을 Hibernate DDL 전에 켠다
+      mode: always
   datasource:
     url: jdbc:postgresql://${custom.site.dbHost}:5432/${custom.site.dbName}?reWriteBatchedInserts=true
     username: postgres

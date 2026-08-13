@@ -24,8 +24,11 @@ class PostService(
         return postRepository.count()
     }
 
-    fun write(author: PostUser, title: String, content: String): Post {
+    fun write(author: PostUser, title: String, content: String): Post = write(author, title, content, null, null)
+
+    fun write(author: PostUser, title: String, content: String, lng: Double?, lat: Double?): Post {
         val post = Post(author, title, content)
+        post.setLocation(lng, lat)
 
         author.incrementPostsCount()
 
@@ -36,6 +39,11 @@ class PostService(
 
     fun modify(post: Post, title: String, content: String) {
         post.modify(title, content)
+    }
+
+    fun modify(post: Post, title: String, content: String, lng: Double?, lat: Double?) {
+        post.modify(title, content)
+        post.setLocation(lng, lat)
     }
 
     fun writeComment(author: PostUser, post: Post, content: String): PostComment {

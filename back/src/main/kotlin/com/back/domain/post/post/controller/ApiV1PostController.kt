@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMax
+import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.transaction.annotation.Transactional
@@ -100,7 +102,12 @@ class ApiV1PostController(
         val title: String,
         @field:NotBlank
         @field:Size(min = 2, max = 5000)
-        val content: String
+        val content: String,
+        // 이 글이 가리키는 장소 (선택). 예) 강남역 : lng 127.0276, lat 37.4979
+        @field:DecimalMin("-180.0") @field:DecimalMax("180.0")
+        val lng: Double? = null,
+        @field:DecimalMin("-90.0") @field:DecimalMax("90.0")
+        val lat: Double? = null
     )
 
     @PostMapping
@@ -109,7 +116,7 @@ class ApiV1PostController(
     fun write(
         @RequestBody @Valid reqBody: PostWriteReqBody
     ): RsData<PostDto> {
-        val post = postService.write(actor, reqBody.title, reqBody.content)
+        val post = postService.write(actor, reqBody.title, reqBody.content, reqBody.lng, reqBody.lat)
 
         return RsData(
             "201-1",
@@ -124,7 +131,11 @@ class ApiV1PostController(
         val title: String,
         @field:NotBlank
         @field:Size(min = 2, max = 5000)
-        val content: String
+        val content: String,
+        @field:DecimalMin("-180.0") @field:DecimalMax("180.0")
+        val lng: Double? = null,
+        @field:DecimalMin("-90.0") @field:DecimalMax("90.0")
+        val lat: Double? = null
     )
 
     @PutMapping("/{id}")
@@ -138,7 +149,7 @@ class ApiV1PostController(
 
         post.checkActorCanModify(actor)
 
-        postService.modify(post, reqBody.title, reqBody.content)
+        postService.modify(post, reqBody.title, reqBody.content, reqBody.lng, reqBody.lat)
 
         return RsData(
             "200-1",
