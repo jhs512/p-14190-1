@@ -48,6 +48,9 @@ dependencies {
     // Database
     implementation("org.postgresql:postgresql")
 
+    // PostGIS (공간 데이터) - JTS 타입을 JPA에 매핑
+    implementation("org.hibernate.orm:hibernate-spatial")
+
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
