@@ -105,6 +105,15 @@ class PostService(
             )
         )
 
+    fun findPagedBySearchKw(kw: String, page: Int, pageSize: Int): Page<Post> =
+        postRepository.findQPagedBySearchKw(kw, PageRequest.of(page - 1, pageSize))
+
+    fun findPagedBySimilarity(kw: String, page: Int, pageSize: Int): Page<Post> =
+        postRepository.findQPagedBySimilarity(kw, PageRequest.of(page - 1, pageSize))
+
+    fun findPagedHybrid(kw: String, lng: Double, lat: Double, radiusM: Double, page: Int, pageSize: Int): Page<Post> =
+        postRepository.findQPagedHybrid(kw, lng, lat, radiusM, PageRequest.of(page - 1, pageSize))
+
     fun findPagedNearby(
         lng: Double,
         lat: Double,

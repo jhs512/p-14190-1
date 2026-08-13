@@ -89,6 +89,46 @@ class ApiV1PostController(
         )
     }
 
+    @GetMapping("/search")
+    @Transactional(readOnly = true)
+    @Operation(summary = "전문검색", description = "PGroonga 한글 전문검색 (그 단어가 들어있는 글)")
+    fun getSearchItems(
+        @RequestParam kw: String,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "5") pageSize: Int,
+    ): PageDto<PostDto> =
+        PageDto(postService.findPagedBySearchKw(kw, normPage(page), normPageSize(pageSize)).map { PostDto(it) })
+
+    @GetMapping("/similar")
+    @Transactional(readOnly = true)
+    @Operation(summary = "의미 검색", description = "임베딩 벡터 유사도 (뜻이 비슷한 글)")
+    fun getSimilarItems(
+        @RequestParam kw: String,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "5") pageSize: Int,
+    ): PageDto<PostDto> =
+        PageDto(postService.findPagedBySimilarity(kw, normPage(page), normPageSize(pageSize)).map { PostDto(it) })
+
+    @GetMapping("/hybrid")
+    @Transactional(readOnly = true)
+    @Operation(summary = "하이브리드 검색", description = "반경 안(공간)에서 뜻이 가까운 순(벡터)으로")
+    fun getHybridItems(
+        @RequestParam kw: String,
+        @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") lng: Double,
+        @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") lat: Double,
+        @RequestParam(defaultValue = "3000") radiusM: Double,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "5") pageSize: Int,
+    ): PageDto<PostDto> =
+        PageDto(
+            postService
+                .findPagedHybrid(kw, lng, lat, radiusM, normPage(page), normPageSize(pageSize))
+                .map { PostDto(it) }
+        )
+
+    private fun normPage(page: Int) = if (page >= 1) page else 1
+    private fun normPageSize(pageSize: Int) = if (pageSize in 1..30) pageSize else 5
+
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     @Operation(summary = "단건 조회")
